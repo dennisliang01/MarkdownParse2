@@ -7,24 +7,24 @@ import java.util.ArrayList;
 public class MarkdownParse {
     public static ArrayList<String> getLinks(String markdown) {
         ArrayList<String> toReturn = new ArrayList<>();
-        // find the next [, then find the ], then find the (, then take up to
-        // the next )
+        // find the next [, then find the ](, then take up to the next )
         int currentIndex = 0;
         while(currentIndex < markdown.length()) {
-
+            int nextExclamationOpenBracket = markdown.indexOf("![", currentIndex);
             int nextOpenBracket = markdown.indexOf("[", currentIndex);
-            int nextCloseBracket = markdown.indexOf("!]", nextOpenBracket+1);
-            int openParen = markdown.indexOf("!](", nextCloseBracket)+2;
-            int closeParen = markdown.indexOf(")", openParen);
-            if(currentIndex > closeParen) break;
-            else if(currentIndex < closeParen){
+            int nextCloseBracketAndOpenParen = markdown.indexOf("](", nextOpenBracket);
+            int closeParen = markdown.indexOf(")", nextCloseBracketAndOpenParen);
+            if (currentIndex > closeParen
+                    || (nextExclamationOpenBracket == nextOpenBracket-1 && nextOpenBracket != 0)
+                    || nextCloseBracketAndOpenParen < 0) {
+                break;
+            } else if (currentIndex < closeParen) {
                 currentIndex = closeParen + 1;
             }
-            String sub = markdown.substring(openParen + 1, closeParen);
-            if(!sub.contains(" ")){
-                toReturn.add(sub);
+            String link = markdown.substring(nextCloseBracketAndOpenParen + 2, closeParen);
+            if (!link.contains(" ")) {
+                toReturn.add(link);
             }
-
         }
         return toReturn;
     }
